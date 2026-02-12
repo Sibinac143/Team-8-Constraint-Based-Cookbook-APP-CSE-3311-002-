@@ -9,30 +9,32 @@ def home():
 
 @app.route("/search")
 def search_recipes():
-    # Get ingredient from URL
-    ingredient = request.args.get("ingredient", "")
+    ingredient = request.args.get("ingredient")
 
-    # If no ingredient provided
     if not ingredient:
         return jsonify({"error": "No ingredient provided"}), 400
 
-    # Call TheMealDB API
     url = f"https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredient}"
     response = requests.get(url)
     data = response.json()
 
-    meals = data.get("meals", [])
+    meals = data.get("meals")
 
-    # Clean up the response
-    results = []
+    # If no recipes found
+    if not meals:
+        return jsonify([])
+
+    # Clean the response
+    cleaned_results = []
     for meal in meals:
-        results.append({
+        cleaned_results.append({
             "id": meal["idMeal"],
             "name": meal["strMeal"],
             "image": meal["strMealThumb"]
         })
 
-    return jsonify(results)
+    return jsonify(cleaned_results)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
