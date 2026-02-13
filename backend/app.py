@@ -7,13 +7,8 @@ app = Flask(__name__)
 CORS(app)
 
 
-SUPPORTED_EQUIPMENT = [
-    "oven",
-    "microwave",
-    "stove",
-    "air fryer",
-    "blender"
-]
+SUPPORTED_EQUIPMENT = ["oven", "microwave", "stove", "air fryer", "blender"]
+
 
 def recipe_matches_equipment(instructions, user_equipment):
     instructions = instructions.lower()
@@ -65,14 +60,15 @@ def search_recipes():
 
         # Check equipment
         if recipe_matches_equipment(instructions, user_equipment):
-            filtered_results.append({
-                "id": meal["idMeal"],
-                "name": meal["strMeal"],
-                "image": meal["strMealThumb"]
-            })
+            filtered_results.append(
+                {
+                    "id": meal["idMeal"],
+                    "name": meal["strMeal"],
+                    "image": meal["strMealThumb"],
+                }
+            )
 
     return jsonify(filtered_results)
-
 
 
 if __name__ == "__main__":
