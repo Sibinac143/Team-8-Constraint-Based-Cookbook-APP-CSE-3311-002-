@@ -1,7 +1,11 @@
+from flask_cors import CORS
 from flask import Flask, request, jsonify
 import requests
+import certifi
 
 app = Flask(__name__)
+CORS(app)
+
 
 SUPPORTED_EQUIPMENT = [
     "oven",
@@ -39,7 +43,7 @@ def search_recipes():
         return jsonify({"error": "No ingredient provided"}), 400
 
     url = f"https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredient}"
-    response = requests.get(url)
+    response = requests.get(url, verify=certifi.where())
     data = response.json()
 
     meals = data.get("meals")
@@ -53,7 +57,7 @@ def search_recipes():
 
         # Get full recipe details
         detail_url = f"https://www.themealdb.com/api/json/v1/1/lookup.php?i={meal_id}"
-        detail_response = requests.get(detail_url)
+        detail_response = requests.get(detail_url, verify=certifi.where())
         detail_data = detail_response.json()
 
         recipe = detail_data["meals"][0]
