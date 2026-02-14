@@ -6,12 +6,42 @@
 </head>
 <body>
 
-<h1>Constraint-Based Cookbook</h1>
+<div class="container">
 
-<input type="text" id="ingredient" placeholder="Enter ingredient">
-<button id="searchBtn">Search</button>
+    <h1>Constraint-Based Cookbook</h1>
+    <p class="subtitle">Find recipes using available ingredients & equipment</p>
 
-<div id="results"></div>
+    <div class="search-section">
+        <input type="text" id="ingredient" placeholder="Enter ingredient (e.g., chicken)">
+        <button id="searchBtn">Search</button>
+    </div>
+
+    <div class="filters">
+  <p class="filter-title">Select available equipment:</p>
+
+  <div class="pill-group">
+    <input type="checkbox" id="eq-oven" class="equip" value="oven">
+    <label for="eq-oven" class="pill">🔥 Oven</label>
+
+    <input type="checkbox" id="eq-micro" class="equip" value="microwave">
+    <label for="eq-micro" class="pill">⚡ Microwave</label>
+
+    <input type="checkbox" id="eq-stove" class="equip" value="stove">
+    <label for="eq-stove" class="pill">🍳 Stove</label>
+
+    <input type="checkbox" id="eq-air" class="equip" value="air fryer">
+    <label for="eq-air" class="pill">🌪️ Air Fryer</label>
+  </div>
+</div>
+
+
+    <div id="results" class="results-grid"></div>
+
+    <footer>
+        Team 8 – CSE 3311-002
+    </footer>
+
+</div>
 
 <script src="app.js"></script>
 </body>
