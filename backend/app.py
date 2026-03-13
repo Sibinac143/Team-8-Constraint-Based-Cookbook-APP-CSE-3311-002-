@@ -26,7 +26,10 @@ def home():
 
 @app.route("/search")
 def search_recipes():
-    ingredient = request.args.get("ingredient")
+    ingredient_param = request.args.get("ingredient", "")
+
+    ingredients = [i.strip().lower() for i in ingredient_param.split(",") if i.strip()]
+
     equipment_param = request.args.get("equipment", "")
 
     # Convert equipment string to list
@@ -34,10 +37,10 @@ def search_recipes():
         e.strip().lower() for e in equipment_param.split(",") if e.strip()
     ]
 
-    if not ingredient:
+    if not ingredients:
         return jsonify({"error": "No ingredient provided"}), 400
 
-    url = f"https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredient}"
+    url = f"https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredients[0]}"
     response = requests.get(url, verify=certifi.where())
     data = response.json()
 
@@ -69,6 +72,38 @@ def search_recipes():
             )
 
     return jsonify(filtered_results)
+
+
+@app.route("/recipe/<meal_id>")
+def get_recipe(meal_id):
+
+    url = f"https://www.themealdb.com/api/json/v1/1/lookup.php?i={meal_id}"
+
+    response = requests.get(url, verify=certifi.where())
+    data = response.json()
+
+    if not data["meals"]:
+        return jsonify({"error": "Recipe not found"}), 404
+
+    recipe = data["meals"][0]
+
+    ingredients = []
+
+    for i in range(1, 21):
+        ingredient = recipe[f"strIngredient{i}"]
+        measure = recipe[f"strMeasure{i}"]
+
+        if ingredient and ingredient.strip():
+            ingredients.append(f"{measure} {ingredient}")
+
+    return jsonify(
+        {
+            "name": recipe["strMeal"],
+            "image": recipe["strMealThumb"],
+            "instructions": recipe["strInstructions"],
+            "ingredients": ingredients,
+        }
+    )
 
 
 if __name__ == "__main__":
