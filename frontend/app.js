@@ -1,36 +1,39 @@
 const searchBtn = document.getElementById("searchBtn");
-const ingredientInput = document.getElementById("ingredient");
 const resultsDiv = document.getElementById("results");
 
 const BACKEND_URL = "http://127.0.0.1:5000/search";
-const addIngredientBtn = document.getElementById("addIngredientBtn");
 const ingredientListDiv = document.getElementById("ingredient-list");
 
 let ingredients = [];
 
+const ingredientInput = document.getElementById("ingredient");
+const ingredientList = document.getElementById("ingredientList");
+const addIngredientBtn = document.getElementById("addIngredientBtn");
+const clearBtn = document.getElementById("clearBtn");
+
 addIngredientBtn.addEventListener("click", () => {
   const ingredient = ingredientInput.value.trim().toLowerCase();
-  if (!ingredient) return;
+  if (!ingredient || ingredients.includes(ingredient)) return;
   ingredients.push(ingredient);
-  renderIngredients();
   ingredientInput.value = "";
+  renderIngredients();
 });
 
 function renderIngredients() {
-  ingredientListDiv.innerHTML = ingredients
+  ingredientList.innerHTML = ingredients
     .map(
-      (ing, index) => `
+      (ing) => `
     <span class="ingredient-bubble">
       ${ing}
-      <button onclick="removeIngredient(${index})">x</button>
+      <button onclick="removeIngredient('${ing}')">✕</button>
     </span>
   `,
     )
     .join("");
 }
 
-function removeIngredient(index) {
-  ingredients.splice(index, 1);
+function removeIngredient(ing) {
+  ingredients = ingredients.filter((i) => i !== ing);
 
   renderIngredients();
 }
@@ -47,13 +50,7 @@ searchBtn.addEventListener("click", async () => {
     document.querySelectorAll(".equip:checked"),
   ).map((cb) => cb.value);
 
-  if (!ingredient) {
-    resultsDiv.innerHTML =
-      "<p style='color:red;'>Please enter an ingredient.</p>";
-    return;
-  }
-
-  resultsDiv.innerHTML = "<p>Loading...</p>";
+  resultsDiv.innerHTML = "<p>🔍 Searching recipes...</p>";
 
   try {
     const params = new URLSearchParams();
@@ -95,6 +92,12 @@ searchBtn.addEventListener("click", async () => {
   }
 });
 
+clearBtn.addEventListener("click", () => {
+  ingredients = [];
+
+  renderIngredients();
+});
+
 function openRecipe(id) {
-  window.location.href = `recipe.html?id=${id}`;
+  window.location.href = `recipe.html?id=${id}&ingredients=${ingredients.join(",")}`;
 }

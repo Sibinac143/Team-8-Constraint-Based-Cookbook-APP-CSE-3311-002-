@@ -1,24 +1,55 @@
 const params = new URLSearchParams(window.location.search);
+
 const recipeId = params.get("id");
+const userIngredients = params.get("ingredients") || "";
 
 const BACKEND_URL = "http://127.0.0.1:5000";
 
 async function loadRecipe() {
-  const response = await fetch(`${BACKEND_URL}/recipe/${recipeId}`);
+  try {
+    const response = await fetch(
+      `${BACKEND_URL}/recipe/${recipeId}?ingredient=${userIngredients}`,
+    );
 
-  const data = await response.json();
+    const data = await response.json();
 
-  document.getElementById("recipe-name").innerText = data.name;
+    if (data.error) {
+      document.body.innerHTML = `<p style="color:red;">${data.error}</p>`;
+      return;
+    }
 
-  document.getElementById("recipe-image").src = data.image;
+    // Recipe title
+    document.getElementById("recipe-name").innerText = data.name;
 
-  document.getElementById("instructions").innerText = data.instructions;
+    // Recipe image
+    document.getElementById("recipe-image").src = data.image;
 
-  const ingredientsList = document.getElementById("ingredients");
+    // Instructions
+    document.getElementById("instructions").innerText = data.instructions;
 
-  ingredientsList.innerHTML = data.ingredients
-    .map((i) => `<li>${i}</li>`)
-    .join("");
+    // Ingredients list
+    const ingredientsList = document.getElementById("ingredients");
+
+    ingredientsList.innerHTML = data.ingredients
+      .map((i) => `<li>${i}</li>`)
+      .join("");
+
+    // Missing ingredients section
+    const missingDiv = document.getElementById("missing");
+
+    if (data.missing && data.missing.length > 0) {
+      missingDiv.innerHTML =
+        "<h3>Missing Ingredients</h3>" +
+        data.missing.map((i) => `<li style="color:red;">${i}</li>`).join("");
+    } else {
+      missingDiv.innerHTML =
+        "<p style='color:green;'>You have all the ingredients! 🎉</p>";
+    }
+  } catch (err) {
+    console.error(err);
+
+    document.body.innerHTML = "<p style='color:red;'>Error loading recipe.</p>";
+  }
 }
 
 function goBack() {
