@@ -1,6 +1,6 @@
 # Team-8-Constraint-Based-Cookbook-APP-CSE-3311-002-
-Constraint-Based Cookbook App (CSE 3311 Team 8): helps beginners find recipes using available ingredients and dietary preferences. Includes browsing + basic filtering. Excludes AI recommendations, live nutrition, grocery ordering, and social features.
 
+Constraint-Based Cookbook App (CSE 3311 Team 8): helps beginners find recipes using available ingredients and dietary preferences. Includes browsing + basic filtering. Excludes AI recommendations, live nutrition, grocery ordering, and social features.
 
 ## Setup Instructions
 
@@ -24,7 +24,7 @@ venv\Scripts\activate
 
 ```
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate6
 ```
 
 3. **Install dependencies**
@@ -39,3 +39,6 @@ pip install -r requirements.txt
 python app.py
 ```
 
+5. **Open Frontend**
+
+"\Team-8-Constraint-Based-Cookbook-APP-CSE-3311-002-\frontend\index.html"
