@@ -6,10 +6,24 @@
   </head>
 
   <body>
+    <div class="auth-header">
+      <span id="welcomeMsg"></span>
+      <div class="auth-header-actions">
+        <button class="auth-header-btn" onclick="window.location.href='favorites.html'">⭐ My Favorites</button>
+        <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
     <div class="container">
       <h1 id="recipe-name"></h1>
 
       <img id="recipe-image" style="max-width: 400px" />
+
+      <div style="margin: 16px 0;">
+        <button id="favoriteBtn" class="favorite-btn" onclick="toggleFavorite()">
+          ⭐ Add to Favorites
+        </button>
+      </div>
 
       <h2>Ingredients</h2>
       <ul id="ingredients"></ul>

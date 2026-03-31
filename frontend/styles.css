@@ -158,3 +158,152 @@ footer {
 .pill:hover {
   transform: scale(1.03);
 }
+
+/* ----------------------------
+   Auth Header Bar
+   ---------------------------- */
+.auth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #28a745;
+  color: white;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.auth-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-header-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-left: 0;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.auth-header-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.logout-btn {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ----------------------------
+   Login / Auth Card
+   ---------------------------- */
+.auth-card {
+  background: white;
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 32px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.auth-tabs {
+  display: flex;
+  border-bottom: 2px solid #e9ecef;
+  margin-bottom: 24px;
+}
+
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px;
+  font-size: 15px;
+  color: #666;
+  cursor: pointer;
+  margin-left: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: 0.2s;
+}
+
+.auth-tab.active {
+  color: #28a745;
+  border-bottom-color: #28a745;
+  font-weight: 700;
+  background: none;
+}
+
+.auth-tab:hover {
+  background: none;
+  color: #218838;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  margin-left: 0;
+  margin-top: 8px;
+  padding: 12px;
+  font-size: 15px;
+}
+
+.auth-error {
+  color: #dc3545;
+  font-size: 13px;
+  margin: 4px 0;
+  min-height: 18px;
+}
+
+/* ----------------------------
+   Favorite Button
+   ---------------------------- */
+.favorite-btn {
+  background: #ffc107;
+  color: #333;
+  font-size: 15px;
+  padding: 10px 22px;
+  margin-left: 0;
+}
+
+.favorite-btn:hover {
+  background: #e0a800;
+}
+
+.favorite-btn.favorited {
+  background: #ff9800;
+  color: white;
+}
+
+.remove-fav-btn {
+  background: #dc3545;
+  font-size: 12px;
+  padding: 6px 12px;
+  margin-left: 0;
+  margin-top: 8px;
+}
+
+.remove-fav-btn:hover {
+  background: #c82333;
+}

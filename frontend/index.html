@@ -5,10 +5,18 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="auth-header">
+      <span id="welcomeMsg"></span>
+      <div class="auth-header-actions">
+        <button class="auth-header-btn" onclick="window.location.href='favorites.html'">⭐ My Favorites</button>
+        <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
     <div class="container">
       <h1>Constraint-Based Cookbook</h1>
       <p class="subtitle">
-        Find recipes using available ingredients & equipment
+        Find recipes using available ingredients &amp; equipment
       </p>
 
       <div class="ingredient-input">
@@ -28,12 +36,7 @@
           <input type="checkbox" id="eq-oven" class="equip" value="oven" />
           <label for="eq-oven" class="pill">🔥 Oven</label>
 
-          <input
-            type="checkbox"
-            id="eq-micro"
-            class="equip"
-            value="microwave"
-          />
+          <input type="checkbox" id="eq-micro" class="equip" value="microwave" />
           <label for="eq-micro" class="pill">⚡ Microwave</label>
 
           <input type="checkbox" id="eq-stove" class="equip" value="stove" />

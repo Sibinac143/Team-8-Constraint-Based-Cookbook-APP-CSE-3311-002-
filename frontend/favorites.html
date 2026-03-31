@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <title>My Favorites – Constraint-Based Cookbook</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="auth-header">
+      <span id="welcomeMsg"></span>
+      <div class="auth-header-actions">
+        <button class="auth-header-btn" onclick="window.location.href='index.html'">🔍 Search</button>
+        <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <h1>⭐ My Favorites</h1>
+      <p class="subtitle">Recipes you've saved</p>
+
+      <div id="favorites" class="results-grid"></div>
+
+      <footer>Team 8 – CSE 3311-002</footer>
+    </div>
+
+    <script src="favorites.js"></script>
+  </body>
+</html>
