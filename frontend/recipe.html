@@ -1,42 +1,72 @@
 <!doctype html>
-<html>
-  <head>
-    <title>Recipe</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-
-  <body>
-    <div class="auth-header">
-      <span id="welcomeMsg"></span>
-      <div class="auth-header-actions">
-        <button class="auth-header-btn" onclick="window.location.href='favorites.html'">⭐ My Favorites</button>
-        <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
-      </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Details</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <header class="auth-header premium-header">
+    <div>Constraint-Based Cookbook</div>
+    <div class="auth-header-actions">
+      <button class="auth-header-btn" onclick="goBackHome()">Back to Search</button>
+      <button class="auth-header-btn" onclick="window.location.href='favorites.html'">Favorites</button>
     </div>
+  </header>
 
-    <div class="container">
-      <h1 id="recipe-name"></h1>
-
-      <img id="recipe-image" style="max-width: 400px" />
-
-      <div style="margin: 16px 0;">
-        <button id="favoriteBtn" class="favorite-btn" onclick="toggleFavorite()">
-          ⭐ Add to Favorites
-        </button>
+  <main class="recipe-page-premium">
+    <section id="recipeHero" class="recipe-hero-card premium-surface">
+      <div class="recipe-loading-card">
+        <p>Loading recipe...</p>
       </div>
+    </section>
 
-      <h2>Ingredients</h2>
-      <ul id="ingredients"></ul>
+    <section id="recipeBody" class="recipe-body-grid" style="display:none;">
+      <aside class="recipe-sidebar">
+        <div class="recipe-side-card premium-surface">
+          <p class="card-eyebrow">Match Overview</p>
+          <h3>Why this recipe fits</h3>
+          <div id="matchSummary" class="match-summary-list"></div>
+        </div>
 
-      <h2>Missing Ingredients</h2>
-      <ul id="missing"></ul>
+        <div class="recipe-side-card premium-surface">
+          <p class="card-eyebrow">Your Ingredients</p>
+          <h3>Missing ingredients</h3>
+          <div id="missingIngredients" class="missing-ingredients-list"></div>
+        </div>
+      </aside>
 
-      <h2>Instructions</h2>
-      <p id="instructions"></p>
+      <section class="recipe-main-content">
+        <div class="recipe-content-card premium-surface">
+          <div class="recipe-section-header">
+            <div>
+              <p class="card-eyebrow">Ingredients</p>
+              <h2>What you need</h2>
+            </div>
+          </div>
+          <div id="ingredientsList" class="premium-ingredients-grid"></div>
+        </div>
 
-      <button onclick="goBack()">⬅ Back</button>
-    </div>
+        <div class="recipe-content-card premium-surface">
+          <div class="recipe-section-header">
+            <div>
+              <p class="card-eyebrow">Instructions</p>
+              <h2>How to make it</h2>
+            </div>
+          </div>
+          <div id="instructionsList" class="premium-steps-list"></div>
+        </div>
+      </section>
+    </section>
+  </main>
 
-    <script src="recipe.js"></script>
-  </body>
+  <script src="recipe.js"></script>
+</body>
 </html>

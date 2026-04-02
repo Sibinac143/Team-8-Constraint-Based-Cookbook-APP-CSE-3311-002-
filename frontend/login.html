@@ -1,56 +1,105 @@
 <!doctype html>
-<html>
-  <head>
-    <title>Login – Constraint-Based Cookbook</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h1>Constraint-Based Cookbook</h1>
-      <p class="subtitle">Find recipes using available ingredients &amp; equipment</p>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Constraint-Based Cookbook</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body class="login-page-body">
+  <main class="login-page-shell">
+    <section class="login-hero-panel">
+      <p class="login-hero-badge">Cook smarter</p>
+      <h1 class="login-hero-title">Constraint-Based Cookbook</h1>
+      <p class="login-hero-text">
+        Discover recipes based on the ingredients and equipment you already have.
+        Save favorites, explore ideas, and build toward a smarter social cooking platform.
+      </p>
 
-      <div class="auth-card">
-        <div class="auth-tabs">
+      <div class="login-feature-list">
+        <div class="login-feature-card">
+          <div class="login-feature-icon">🍳</div>
+          <div>
+            <h3>Smart filtering</h3>
+            <p>Find meals from what is already in your kitchen.</p>
+          </div>
+        </div>
+
+        <div class="login-feature-card">
+          <div class="login-feature-icon">⭐</div>
+          <div>
+            <h3>Favorites</h3>
+            <p>Save recipes you want to come back to later.</p>
+          </div>
+        </div>
+
+        <div class="login-feature-card">
+          <div class="login-feature-icon">🤖</div>
+          <div>
+            <h3>CookBot ready</h3>
+            <p>Built to grow into a smart cooking assistant.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="login-form-panel">
+      <div class="login-card-premium">
+        <p class="login-card-label">Welcome</p>
+        <h2>Access your account</h2>
+        <p class="login-card-subtitle">
+          Log in to continue or create a new account to save favorites and personalize your cooking experience.
+        </p>
+
+        <div class="auth-tabs modern-auth-tabs">
           <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
           <button class="auth-tab" id="registerTab" onclick="switchTab('register')">Register</button>
         </div>
 
-        <!-- Login Form -->
         <div id="loginForm">
           <div class="form-group">
-            <label>Email</label>
+            <label>Email address</label>
             <input type="email" id="loginEmail" placeholder="you@example.com" />
           </div>
+
           <div class="form-group">
             <label>Password</label>
-            <input type="password" id="loginPassword" placeholder="Password" />
+            <input type="password" id="loginPassword" placeholder="Enter your password" />
           </div>
+
           <p id="loginError" class="auth-error"></p>
-          <button class="auth-submit-btn" onclick="doLogin()">Login</button>
+          <button class="auth-submit-btn modern-auth-submit" onclick="doLogin()">Login</button>
         </div>
 
-        <!-- Register Form -->
         <div id="registerForm" style="display:none;">
           <div class="form-group">
             <label>Username</label>
             <input type="text" id="regUsername" placeholder="Choose a username" />
           </div>
+
           <div class="form-group">
-            <label>Email</label>
+            <label>Email address</label>
             <input type="email" id="regEmail" placeholder="you@example.com" />
           </div>
+
           <div class="form-group">
             <label>Password</label>
             <input type="password" id="regPassword" placeholder="Create a password" />
           </div>
+
           <p id="registerError" class="auth-error"></p>
-          <button class="auth-submit-btn" onclick="doRegister()">Create Account</button>
+          <button class="auth-submit-btn modern-auth-submit" onclick="doRegister()">Create Account</button>
         </div>
       </div>
+    </section>
+  </main>
 
-      <footer>Team 8 – CSE 3311-002</footer>
-    </div>
-
-    <script src="login.js"></script>
-  </body>
+  <script src="login.js"></script>
+</body>
 </html>
