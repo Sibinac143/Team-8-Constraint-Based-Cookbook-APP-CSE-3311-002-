@@ -34,6 +34,12 @@ const clearBtn = document.getElementById("clearBtn");
 const searchBtn = document.getElementById("searchBtn");
 const resultsDiv = document.getElementById("results");
 
+
+//Supabase
+const supabaseUrl = 'https://irvmscgjboifqclemvqo.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlydm1zY2dqYm9pZnFjbGVtdnFvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNjkyNjQsImV4cCI6MjA5MDc0NTI2NH0.DhHtkajHvHFdD8R6yEVfWprdzv09GgX6U7lEbJRC5wg';
+const MYsupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
 addIngredientBtn.addEventListener("click", () => {
   const ingredient = ingredientInput.value.trim().toLowerCase();
   if (!ingredient || ingredients.includes(ingredient)) return;
