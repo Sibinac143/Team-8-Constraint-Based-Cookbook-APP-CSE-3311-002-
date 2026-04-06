@@ -1,5 +1,6 @@
 import os
 import json
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -13,6 +14,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from openai import OpenAI
 import requests
 import certifi
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
@@ -558,7 +561,10 @@ User query: {query}
 
     except Exception as e:
         print("SMART SEARCH ERROR:", e)
-        return jsonify({"error": f"Smart search failed: {str(e)}"}), 500
+        error_str = str(e)
+        if "insufficient_quota" in error_str or "429" in error_str:
+            return jsonify({"error": "OpenAI quota exceeded. Please add billing at platform.openai.com. Using basic search instead."}), 402
+        return jsonify({"error": f"Smart search failed: {error_str}"}), 500
 
 
 @app.route("/recipe/<meal_id>", methods=["GET"])
@@ -672,7 +678,10 @@ Current user message:
 
         return jsonify({"reply": response.output_text})
     except Exception as e:
-        return jsonify({"error": f"CookBot failed: {str(e)}"}), 500
+        error_str = str(e)
+        if "insufficient_quota" in error_str or "429" in error_str:
+            return jsonify({"error": "OpenAI quota exceeded. Please add billing at platform.openai.com to use CookBot."}), 402
+        return jsonify({"error": f"CookBot failed: {error_str}"}), 500
 
 
 if __name__ == "__main__":
