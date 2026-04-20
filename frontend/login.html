@@ -3,34 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login – Constraint-Based Cookbook</title>
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+  <title>Login – Dishcovery</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 </head>
-
 <body class="login-page-body">
   <main class="login-page-shell">
     <section class="login-hero-panel">
-      <p class="login-hero-badge">Cook smarter</p>
-      <h1 class="login-hero-title">Constraint-Based Cookbook</h1>
+      <p class="login-hero-badge">Dishcovery</p>
+      <h1 class="login-hero-title">Cook smarter with what you already have</h1>
       <p class="login-hero-text">
-        Discover recipes based on the ingredients and equipment you already have.
-        Save favorites, explore ideas, and build toward a smarter social cooking platform.
+        Search by ingredients, save recipes, explore community posts, and get help from CookBot.
       </p>
 
       <div class="login-feature-list">
         <div class="login-feature-card">
           <div class="login-feature-icon">🍳</div>
           <div>
-            <h3>Smart filtering</h3>
-            <p>Find meals from what is already in your kitchen.</p>
+            <h3>Smart search</h3>
+            <p>Find recipes based on ingredients and preferences.</p>
           </div>
         </div>
+
         <div class="login-feature-card">
           <div class="login-feature-icon">⭐</div>
           <div>
@@ -38,11 +37,12 @@
             <p>Save recipes you want to come back to later.</p>
           </div>
         </div>
+
         <div class="login-feature-card">
-          <div class="login-feature-icon">🤖</div>
+          <div class="login-feature-icon">🤝</div>
           <div>
-            <h3>CookBot ready</h3>
-            <p>Built to grow into a smart cooking assistant.</p>
+            <h3>Community</h3>
+            <p>See what other users are cooking and share your own ideas.</p>
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@
         <p class="login-card-label">Welcome</p>
         <h2>Access your account</h2>
         <p class="login-card-subtitle">
-          Log in to continue or create a new account to save favorites.
+          Log in to continue or create a new account.
         </p>
 
         <div class="auth-tabs modern-auth-tabs">
@@ -66,10 +66,17 @@
             <label>Email address</label>
             <input type="email" id="loginEmail" placeholder="you@example.com" />
           </div>
+
           <div class="form-group">
-            <label>Password</label>
+            <div class="password-row">
+              <label>Password</label>
+              <button type="button" class="forgot-link-btn" onclick="showForgotPassword()">
+                Forgot password?
+              </button>
+            </div>
             <input type="password" id="loginPassword" placeholder="Enter your password" />
           </div>
+
           <p id="loginError" class="auth-error"></p>
           <button class="auth-submit-btn modern-auth-submit" onclick="doLogin()">Login</button>
         </div>
@@ -79,21 +86,41 @@
             <label>Username</label>
             <input type="text" id="regUsername" placeholder="Choose a username" />
           </div>
+
           <div class="form-group">
             <label>Email address</label>
             <input type="email" id="regEmail" placeholder="you@example.com" />
           </div>
+
           <div class="form-group">
             <label>Password</label>
             <input type="password" id="regPassword" placeholder="Create a password" />
           </div>
+
           <p id="registerError" class="auth-error"></p>
           <button class="auth-submit-btn modern-auth-submit" onclick="doRegister()">Create Account</button>
+        </div>
+
+        <div id="forgotForm" style="display:none;">
+          <div class="form-group">
+            <label>Email address</label>
+            <input type="email" id="forgotEmail" placeholder="Enter your account email" />
+          </div>
+
+          <p id="forgotMessage" class="auth-info"></p>
+          <p id="forgotError" class="auth-error"></p>
+
+          <button class="auth-submit-btn modern-auth-submit" onclick="sendResetLink()">
+            Send Reset Link
+          </button>
+          <button type="button" class="secondary-auth-btn" onclick="backToLogin()">
+            Back to Login
+          </button>
         </div>
       </div>
     </section>
   </main>
 
-  <script src="login.js"></script>
+  <script src="login.js?v=2"></script>
 </body>
 </html>
