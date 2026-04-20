@@ -1,27 +1,46 @@
 <!doctype html>
-<html>
-  <head>
-    <title>My Favorites – Constraint-Based Cookbook</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="auth-header">
-      <span id="welcomeMsg"></span>
-      <div class="auth-header-actions">
-        <button class="auth-header-btn" onclick="window.location.href='index.html'">🔍 Search</button>
-        <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
-      </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Saved Recipes – Dishcovery</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body>
+  <header class="auth-header premium-header">
+    <div id="welcomeMsg">Dishcovery</div>
+    <div class="auth-header-actions">
+      <button class="auth-header-btn" onclick="window.location.href='index.html'">Search</button>
+      <button class="auth-header-btn" onclick="window.location.href='community.html'">Community</button>
+      <button class="auth-header-btn" onclick="window.location.href='cookbot.html'">CookBot</button>
+      <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
     </div>
+  </header>
 
-    <div class="container">
-      <h1>⭐ My Favorites</h1>
-      <p class="subtitle">Recipes you've saved</p>
+  <main class="homepage-premium">
+    <section class="results-section-clean">
+      <div class="feed-header-block">
+        <p class="card-eyebrow">Saved Recipes</p>
+        <h1>My Favorites</h1>
+        <p class="feed-section-subtitle">
+          Recipes you’ve saved to revisit later.
+        </p>
+      </div>
 
       <div id="favorites" class="results-grid"></div>
 
-      <footer>Team 8 – CSE 3311-002</footer>
-    </div>
+      <div class="section-link-row">
+        <a class="section-link-btn" href="index.html">Back to recipe search</a>
+      </div>
+    </section>
+  </main>
 
-    <script src="favorites.js"></script>
-  </body>
+  <script src="favorites.js"></script>
+</body>
 </html>
