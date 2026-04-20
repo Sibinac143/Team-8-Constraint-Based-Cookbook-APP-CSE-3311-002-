@@ -5,8 +5,15 @@ if (!token) {
   window.location.href = "login.html";
 }
 
-const username = localStorage.getItem("username") || "User";
-document.getElementById("welcomeMsg").textContent = `Hello, ${username}!`;
+document.addEventListener("DOMContentLoaded", () => {
+  const username = localStorage.getItem("username") || "User";
+  const welcomeMsg = document.getElementById("welcomeMsg");
+  if (welcomeMsg) {
+    welcomeMsg.textContent = `Dishcovery • Hello, ${username}`;
+  }
+
+  loadFavorites();
+});
 
 function logout() {
   localStorage.removeItem("token");
@@ -21,54 +28,108 @@ function authHeaders() {
   };
 }
 
-async function removeFavorite(meal_id) {
-  await fetch(`${BACKEND_URL}/user/favorites/${meal_id}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  loadFavorites();
-}
-
-async function loadFavorites() {
-  const container = document.getElementById("favorites");
-  container.innerHTML = "<p>Loading...</p>";
-
+async function removeFavorite(mealId) {
   try {
-    const res = await fetch(`${BACKEND_URL}/user/favorites`, {
+    const response = await fetch(`${BACKEND_URL}/user/favorites/${mealId}`, {
+      method: "DELETE",
       headers: authHeaders(),
     });
 
-    if (res.status === 401) {
+    if (response.status === 401) {
       window.location.href = "login.html";
       return;
     }
 
-    const favorites = await res.json();
+    loadFavorites();
+  } catch (error) {
+    console.error("Error removing favorite:", error);
+  }
+}
 
-    if (favorites.length === 0) {
-      container.innerHTML = "<p>You haven't favorited any recipes yet. Go search for some!</p>";
+async function loadFavorites() {
+  const container = document.getElementById("favorites");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="community-card empty-feed-card">
+      <p>Loading saved recipes...</p>
+    </div>
+  `;
+
+  try {
+    const response = await fetch(`${BACKEND_URL}/user/favorites`, {
+      headers: authHeaders(),
+    });
+
+    if (response.status === 401) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    const favorites = await response.json();
+
+    if (!Array.isArray(favorites) || favorites.length === 0) {
+      container.innerHTML = `
+        <div class="community-card empty-feed-card">
+          <h3>No saved recipes yet</h3>
+          <p>Save recipes from the search page and they’ll appear here.</p>
+        </div>
+      `;
       return;
     }
 
     container.innerHTML = favorites
       .map(
         (meal) => `
-      <div class="recipe-card">
-        <img src="${meal.meal_image}" alt="${meal.meal_name}" onclick="openRecipe('${meal.meal_id}')">
-        <h3 onclick="openRecipe('${meal.meal_id}')">${meal.meal_name}</h3>
-        <button class="remove-fav-btn" onclick="removeFavorite('${meal.meal_id}')">✕ Remove</button>
-      </div>
-    `
+          <div class="recipe-card">
+            <img
+              src="${escapeAttribute(meal.meal_image)}"
+              alt="${escapeAttribute(meal.meal_name)}"
+              onclick="openRecipe('${escapeJsString(meal.meal_id)}')"
+            />
+            <h3 onclick="openRecipe('${escapeJsString(meal.meal_id)}')">
+              ${escapeHtml(meal.meal_name)}
+            </h3>
+            <button
+              class="remove-fav-btn"
+              onclick="removeFavorite('${escapeJsString(meal.meal_id)}')"
+            >
+              Remove
+            </button>
+          </div>
+        `
       )
       .join("");
-  } catch (err) {
-    container.innerHTML = "<p style='color:red;'>Error loading favorites.</p>";
-    console.error(err);
+  } catch (error) {
+    container.innerHTML = `
+      <div class="community-card empty-feed-card">
+        <h3>Could not load favorites</h3>
+        <p>Please try again in a moment.</p>
+      </div>
+    `;
+    console.error("Error loading favorites:", error);
   }
 }
 
 function openRecipe(id) {
-  window.location.href = `recipe.html?id=${id}`;
+  window.location.href = `recipe.html?id=${encodeURIComponent(id)}`;
 }
 
-loadFavorites();
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttribute(value) {
+  return escapeHtml(value);
+}
+
+function escapeJsString(value) {
+  return String(value)
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'");
+}
