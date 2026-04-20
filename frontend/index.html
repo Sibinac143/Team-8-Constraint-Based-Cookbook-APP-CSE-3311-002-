@@ -12,22 +12,21 @@
     rel="stylesheet"
   />
 </head>
-
 <body>
   <header class="auth-header premium-header">
     <div id="welcomeText">Dishcovery</div>
+
     <div class="auth-header-actions">
       <button class="auth-header-btn" onclick="window.location.href='index.html'">Search</button>
       <button class="auth-header-btn" onclick="window.location.href='community.html'">Community</button>
       <button class="auth-header-btn" onclick="window.location.href='favorites.html'">Favorites</button>
-      <button class="auth-header-btn" onclick="window.location.href='cookbot.html'">CookBot</button>
       <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
     </div>
   </header>
 
   <main class="homepage-premium">
     <section class="hero-search-section" id="recipesSection">
-      <div class="hero-search-card premium-surface refined-hero-card">
+      <div class="hero-search-card premium-surface elegant-hero-card">
         <p class="community-badge">Dishcovery</p>
 
         <h1 class="hero-title-refined">Find something good to cook</h1>
@@ -35,13 +34,17 @@
           Search by ingredients, cravings, or food preferences. Dishcovery helps you find recipes that fit what you already have.
         </p>
 
-        <div class="refined-search-wrap">
-          <input
-            id="ingredientInput"
-            class="refined-search-input"
-            placeholder="Try: I have rice and eggs • something light today • quick meal with chicken"
-          />
-          <button class="refined-search-btn" onclick="runSearchFromMainInput()">Search</button>
+        <div class="simple-search-row">
+          <div class="simple-search-input-wrap">
+            <input
+              id="ingredientInput"
+              class="simple-search-input"
+              placeholder="Try: I have rice and eggs • something light today • quick meal with chicken"
+            />
+            <span class="simple-search-icon">⌕</span>
+          </div>
+
+          <button class="simple-search-btn" onclick="runSearchFromMainInput()">Search</button>
         </div>
 
         <div class="refined-helper-row">
@@ -64,18 +67,10 @@
         <div id="ingredientList" class="ingredient-list refined-ingredient-list"></div>
         <div id="smartSearchSummary" class="smart-search-summary" style="display:none;"></div>
 
-        <div class="home-support-links">
-          <a class="support-link-card" href="community.html">
-            <span class="support-link-label">Community</span>
+        <div class="single-shortcut-row">
+          <a class="community-shortcut-card" href="community.html">
+            <span class="community-shortcut-badge">Community</span>
             <strong>See what others cooked</strong>
-          </a>
-          <a class="support-link-card" href="favorites.html">
-            <span class="support-link-label">Saved Recipes</span>
-            <strong>View your favorites</strong>
-          </a>
-          <a class="support-link-card" href="cookbot.html">
-            <span class="support-link-label">CookBot</span>
-            <strong>Get extra cooking help</strong>
           </a>
         </div>
       </div>
@@ -98,15 +93,11 @@
         <p class="card-eyebrow">Relevant Community Matches</p>
         <h2>What people cooked with similar ingredients</h2>
         <p class="feed-section-subtitle">
-          Related community posts appear here after you search.
+          Community posts related to your search appear here.
         </p>
       </div>
 
       <div id="relevantPostsContainer" class="posts-feed compact-feed"></div>
-
-      <div class="section-link-row">
-        <a class="section-link-btn" href="community.html">Open full community page</a>
-      </div>
     </section>
   </main>
 
