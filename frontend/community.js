@@ -1,8 +1,13 @@
 const API_BASE = "/api";
 
+const COOKBOT_HISTORY_KEY = "cookbot_history_v1";
+const MAX_HISTORY_MESSAGES = 8;
+let cookbotInitialized = false;
+
 document.addEventListener("DOMContentLoaded", () => {
   loadUserHeader();
   loadPosts();
+  injectCookbotWidget();
 });
 
 function loadUserHeader() {
@@ -81,6 +86,85 @@ async function createPost() {
   }
 }
 
+async function toggleLike(postId) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Please log in to like posts.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/posts/${postId}/like`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Could not update like.");
+      return;
+    }
+
+    loadPosts();
+  } catch (error) {
+    alert("Could not connect to the server.");
+  }
+}
+
+async function submitComment(postId) {
+  const token = localStorage.getItem("token");
+  const input = document.getElementById(`commentInput-${postId}`);
+
+  if (!input) return;
+
+  const text = input.value.trim();
+
+  if (!token) {
+    alert("Please log in to comment.");
+    return;
+  }
+
+  if (!text) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/posts/${postId}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Could not add comment.");
+      return;
+    }
+
+    input.value = "";
+    loadPosts();
+  } catch (error) {
+    alert("Could not connect to the server.");
+  }
+}
+
+function renderLikeButton(post) {
+  const activeClass = post.liked_by_user ? "liked" : "";
+  const label = post.liked_by_user ? "Liked" : "Like";
+
+  return `
+    <button class="like-btn ${activeClass}" onclick="toggleLike(${post.id})">
+      ❤ ${label} (${post.like_count || 0})
+    </button>
+  `;
+}
+
 async function loadPosts() {
   const postsContainer = document.getElementById("postsContainer");
   if (!postsContainer) return;
@@ -141,8 +225,39 @@ async function loadPosts() {
             </div>
 
             <div class="post-reactions-row">
-              <span class="community-stat-pill">❤ ${post.like_count || 0} likes</span>
+              ${renderLikeButton(post)}
               <span class="community-stat-pill">💬 ${comments.length} comments</span>
+            </div>
+
+            <div class="post-comments-block">
+              <h4 class="comments-heading">Comments</h4>
+
+              <div class="comments-list">
+                ${
+                  comments.length
+                    ? comments
+                        .map(
+                          (comment) => `
+                            <div class="comment-item">
+                              <span class="comment-user">${escapeHtml(comment.username)}</span>
+                              <span class="comment-text">${escapeHtml(comment.text)}</span>
+                            </div>
+                          `
+                        )
+                        .join("")
+                    : `<p class="no-comments-text">No comments yet. Start the conversation.</p>`
+                }
+              </div>
+
+              <div class="comment-form">
+                <input
+                  id="commentInput-${post.id}"
+                  class="comment-input"
+                  type="text"
+                  placeholder="Write a comment..."
+                />
+                <button class="comment-btn" onclick="submitComment(${post.id})">Post</button>
+              </div>
             </div>
           </article>
         `;
@@ -156,6 +271,192 @@ async function loadPosts() {
       </div>
     `;
   }
+}
+
+/* ----------------------------
+   Shared floating CookBot
+   ---------------------------- */
+function injectCookbotWidget() {
+  if (document.getElementById("cookbotPanel")) return;
+
+  const widget = document.createElement("div");
+  widget.innerHTML = `
+    <button class="floating-bot-btn" onclick="toggleCookbot()">🤖 CookBot</button>
+
+    <div id="cookbotPanel" class="cookbot-panel hidden">
+      <div class="cookbot-header">
+        <div>
+          <h3>CookBot</h3>
+          <p>Your kitchen assistant</p>
+        </div>
+
+        <div class="cookbot-header-actions">
+          <button class="cookbot-clear" onclick="clearCookbotHistory()">Clear</button>
+          <button class="cookbot-close" onclick="toggleCookbot()">×</button>
+        </div>
+      </div>
+
+      <div id="cookbotMessages" class="cookbot-messages"></div>
+
+      <div class="cookbot-suggestions">
+        <button onclick="sendQuickCookbot('What can I cook with chicken and rice?')">Chicken + rice</button>
+        <button onclick="sendQuickCookbot('I need something light today')">Something light</button>
+        <button onclick="sendQuickCookbot('Give me a quick dinner idea')">Quick dinner</button>
+      </div>
+
+      <div class="cookbot-input-row">
+        <input
+          id="cookbotInput"
+          type="text"
+          placeholder="Ask CookBot something..."
+          onkeydown="handleCookbotEnter(event)"
+        />
+        <button onclick="sendCookbotMessage()">Send</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(widget);
+}
+
+function toggleCookbot() {
+  const panel = document.getElementById("cookbotPanel");
+  if (!panel) return;
+
+  panel.classList.toggle("hidden");
+
+  if (!cookbotInitialized) {
+    const messages = getCookbotHistory();
+    if (!messages.length) {
+      const welcome = "Hi! I’m CookBot. Ask me what to cook, ingredient swaps, or quick meal ideas.";
+      addCookbotMessage("bot", welcome, true);
+      saveCookbotHistory([{ role: "assistant", content: welcome }]);
+    } else {
+      renderCookbotHistory();
+    }
+    cookbotInitialized = true;
+  }
+}
+
+function handleCookbotEnter(event) {
+  if (event.key === "Enter") {
+    sendCookbotMessage();
+  }
+}
+
+function sendQuickCookbot(text) {
+  const input = document.getElementById("cookbotInput");
+  if (!input) return;
+  input.value = text;
+  sendCookbotMessage();
+}
+
+function getCookbotHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(COOKBOT_HISTORY_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveCookbotHistory(history) {
+  localStorage.setItem(COOKBOT_HISTORY_KEY, JSON.stringify(history.slice(-MAX_HISTORY_MESSAGES)));
+}
+
+function renderCookbotHistory() {
+  const messagesEl = document.getElementById("cookbotMessages");
+  if (!messagesEl) return;
+
+  messagesEl.innerHTML = "";
+  const history = getCookbotHistory();
+
+  history.forEach((item) => {
+    const sender = item.role === "user" ? "user" : "bot";
+    addCookbotMessage(sender, item.content, true);
+  });
+}
+
+async function sendCookbotMessage() {
+  const input = document.getElementById("cookbotInput");
+  if (!input) return;
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  addCookbotMessage("user", text);
+  input.value = "";
+
+  let history = getCookbotHistory();
+  history.push({ role: "user", content: text });
+  saveCookbotHistory(history);
+
+  const messages = document.getElementById("cookbotMessages");
+  if (messages) {
+    const thinking = document.createElement("div");
+    thinking.className = "cookbot-message bot";
+    thinking.id = "cookbotThinking";
+    thinking.textContent = "CookBot is thinking...";
+    messages.appendChild(thinking);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/cookbot`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: text,
+        equipment: [],
+        history: getCookbotHistory()
+      })
+    });
+
+    const data = await response.json();
+
+    const thinkingEl = document.getElementById("cookbotThinking");
+    if (thinkingEl) thinkingEl.remove();
+
+    const reply = response.ok
+      ? (data.reply || "I couldn't generate a reply.")
+      : (data.error || "CookBot could not respond.");
+
+    addCookbotMessage("bot", reply);
+
+    history = getCookbotHistory();
+    history.push({ role: "assistant", content: reply });
+    saveCookbotHistory(history);
+  } catch (error) {
+    const thinkingEl = document.getElementById("cookbotThinking");
+    if (thinkingEl) thinkingEl.remove();
+
+    const reply = "I couldn’t reach the backend. Make sure the server is running.";
+    addCookbotMessage("bot", reply);
+
+    const history = getCookbotHistory();
+    history.push({ role: "assistant", content: reply });
+    saveCookbotHistory(history);
+  }
+}
+
+function addCookbotMessage(sender, text) {
+  const messages = document.getElementById("cookbotMessages");
+  if (!messages) return;
+
+  const bubble = document.createElement("div");
+  bubble.className = `cookbot-message ${sender}`;
+  bubble.textContent = text;
+
+  messages.appendChild(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function clearCookbotHistory() {
+  localStorage.removeItem(COOKBOT_HISTORY_KEY);
+  const messages = document.getElementById("cookbotMessages");
+  if (messages) messages.innerHTML = "";
+  cookbotInitialized = false;
 }
 
 function formatDate(value) {
