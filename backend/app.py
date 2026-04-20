@@ -1,5 +1,8 @@
 import os
 import json
+import secrets
+from datetime import datetime, timedelta
+
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -11,7 +14,6 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from openai import OpenAI
 import requests
 import certifi
 
@@ -29,7 +31,16 @@ jwt = JWTManager(app)
 
 SUPPORTED_EQUIPMENT = ["oven", "microwave", "stove", "air fryer", "blender"]
 
-openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Graceful OpenAI setup
+openai_client = None
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
+if OPENAI_API_KEY:
+    try:
+        from openai import OpenAI
+        openai_client = OpenAI(api_key=OPENAI_API_KEY)
+    except Exception as e:
+        print("OpenAI client init failed:", e)
+        openai_client = None
 
 
 class User(db.Model):
@@ -42,6 +53,7 @@ class User(db.Model):
     posts = db.relationship("Post", backref="user", cascade="all, delete-orphan")
     comments = db.relationship("Comment", backref="user", cascade="all, delete-orphan")
     likes = db.relationship("PostLike", backref="user", cascade="all, delete-orphan")
+    reset_tokens = db.relationship("PasswordResetToken", backref="user", cascade="all, delete-orphan")
 
 
 class Favorite(db.Model):
@@ -85,6 +97,15 @@ class PostLike(db.Model):
     )
 
 
+class PasswordResetToken(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    token = db.Column(db.String(120), unique=True, nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
 def serialize_comment(comment):
     return {
         "id": comment.id,
@@ -118,8 +139,8 @@ def serialize_post(post, current_user_id=None):
 def recipe_matches_equipment(instructions, user_equipment):
     instructions = (instructions or "").lower()
     for equipment in SUPPORTED_EQUIPMENT:
-      if equipment in instructions and equipment not in user_equipment:
-          return False
+        if equipment in instructions and equipment not in user_equipment:
+            return False
     return True
 
 
@@ -288,6 +309,85 @@ def login():
         "access_token": token,
         "username": user.username,
     })
+
+
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    # Always return a generic success response for privacy
+    if not user:
+        return jsonify({
+            "message": "If that email exists, a reset link has been generated."
+        }), 200
+
+    # invalidate older unused tokens
+    old_tokens = PasswordResetToken.query.filter_by(user_id=user.id, used=False).all()
+    for row in old_tokens:
+        row.used = True
+
+    raw_token = secrets.token_urlsafe(32)
+    reset_row = PasswordResetToken(
+        user_id=user.id,
+        token=raw_token,
+        expires_at=datetime.utcnow() + timedelta(hours=1),
+        used=False,
+    )
+
+    db.session.add(reset_row)
+    db.session.commit()
+
+    frontend_base = request.host_url.rstrip("/")
+    reset_link = f"{frontend_base}/reset.html?token={raw_token}"
+
+    # For now we return the link directly since SMTP is not set up.
+    # This makes the feature work immediately for your demo and testing.
+    return jsonify({
+        "message": "If that email exists, a reset link has been generated.",
+        "reset_link": reset_link,
+        "token": raw_token,
+    }), 200
+
+
+@app.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json() or {}
+    token = data.get("token", "").strip()
+    new_password = data.get("password", "")
+
+    if not token or not new_password:
+        return jsonify({"error": "Token and new password are required"}), 400
+
+    if len(new_password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters"}), 400
+
+    row = PasswordResetToken.query.filter_by(token=token, used=False).first()
+
+    if not row:
+        return jsonify({"error": "Invalid or expired reset token"}), 400
+
+    if row.expires_at < datetime.utcnow():
+        row.used = True
+        db.session.commit()
+        return jsonify({"error": "Invalid or expired reset token"}), 400
+
+    user = db.session.get(User, row.user_id)
+    if not user:
+        row.used = True
+        db.session.commit()
+        return jsonify({"error": "User not found"}), 404
+
+    user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
+    row.used = True
+    db.session.commit()
+
+    return jsonify({"message": "Password reset successful"}), 200
 
 
 @app.route("/posts", methods=["GET"])
@@ -486,14 +586,26 @@ def search_recipes():
 
 @app.route("/smart-search", methods=["POST"])
 def smart_search():
-    if not os.environ.get("OPENAI_API_KEY"):
-        return jsonify({"error": "OPENAI_API_KEY is not set on the backend."}), 500
-
     data = request.get_json() or {}
     query = data.get("query", "").strip()
 
     if not query:
         return jsonify({"error": "Query is required"}), 400
+
+    if not openai_client:
+        simple_ingredients = extract_ingredients_from_question(query)
+        return jsonify({
+            "ingredients": simple_ingredients,
+            "tools": [],
+            "intent": "recipe_search",
+            "query_summary": query,
+            "preferences": {
+                "tone": "neutral",
+                "speed": "normal",
+                "comfort": False,
+                "soft_food": False,
+            }
+        })
 
     prompt = f"""
 You are a search parsing assistant for a recipe app.
@@ -561,10 +673,7 @@ User query: {query}
 
     except Exception as e:
         print("SMART SEARCH ERROR:", e)
-        error_str = str(e)
-        if "insufficient_quota" in error_str or "429" in error_str:
-            return jsonify({"error": "OpenAI quota exceeded. Please add billing at platform.openai.com. Using basic search instead."}), 402
-        return jsonify({"error": f"Smart search failed: {error_str}"}), 500
+        return jsonify({"error": f"Smart search failed: {str(e)}"}), 500
 
 
 @app.route("/recipe/<meal_id>", methods=["GET"])
@@ -608,15 +717,22 @@ def get_recipe(meal_id):
 
 @app.route("/cookbot", methods=["POST"])
 def cookbot():
-    if not os.environ.get("OPENAI_API_KEY"):
-        return jsonify({"error": "OPENAI_API_KEY is not set on the backend."}), 500
-
     data = request.get_json() or {}
     message = data.get("message", "").strip()
     history = data.get("history", [])
 
     if not message:
         return jsonify({"error": "Message is required"}), 400
+
+    if not openai_client:
+        lower = message.lower()
+        if "chicken" in lower and "rice" in lower:
+            reply = "Try a quick chicken and rice bowl, chicken fried rice, or a light chicken soup."
+        elif "light" in lower:
+            reply = "You could try soup, rice bowls, salads, or simple egg dishes for something light."
+        else:
+            reply = "Try combining your main ingredient with rice, pasta, or vegetables for a quick meal."
+        return jsonify({"reply": reply})
 
     lower = message.lower()
     recipe_context = ""
@@ -678,10 +794,7 @@ Current user message:
 
         return jsonify({"reply": response.output_text})
     except Exception as e:
-        error_str = str(e)
-        if "insufficient_quota" in error_str or "429" in error_str:
-            return jsonify({"error": "OpenAI quota exceeded. Please add billing at platform.openai.com to use CookBot."}), 402
-        return jsonify({"error": f"CookBot failed: {error_str}"}), 500
+        return jsonify({"error": f"CookBot failed: {str(e)}"}), 500
 
 
 if __name__ == "__main__":
