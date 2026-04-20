@@ -58,22 +58,6 @@ function logout() {
   window.location.href = "login.html";
 }
 
-function scrollToRecipes() {
-  const el = document.getElementById("recipesSection");
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function scrollToCommunity() {
-  const el = document.getElementById("communitySection");
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function togglePostComposer() {
-  const body = document.getElementById("postComposerBody");
-  if (!body) return;
-  body.style.display = body.style.display === "none" ? "block" : "none";
-}
-
 function toggleManualIngredientMode() {
   const section = document.getElementById("manualIngredientSection");
   if (!section) return;
@@ -567,15 +551,24 @@ async function saveFavorite(mealId, mealName, mealImage) {
       })
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401) {
+      alert("Your session expired. Please log in again.");
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      window.location.href = "login.html";
+      return;
+    }
 
     if (!response.ok) {
-      alert(data.error || "Could not save favorite.");
+      alert(data.error || `Could not save favorite. (${response.status})`);
       return;
     }
 
     alert(data.message || "Saved to favorites.");
   } catch (error) {
+    console.error("Favorite save failed:", error);
     alert("Could not connect to the server.");
   }
 }
@@ -820,6 +813,49 @@ async function loadPosts() {
 }
 
 /* CookBot */
+function injectCookbotWidget() {
+  if (document.getElementById("cookbotPanel")) return;
+
+  const widget = document.createElement("div");
+  widget.innerHTML = `
+    <button class="floating-bot-btn" onclick="toggleCookbot()">🤖</button>
+
+    <div id="cookbotPanel" class="cookbot-panel hidden">
+      <div class="cookbot-header">
+        <div>
+          <h3>CookBot</h3>
+          <p>Your kitchen assistant</p>
+        </div>
+
+        <div class="cookbot-header-actions">
+          <button class="cookbot-clear" onclick="clearCookbotHistory()">Clear</button>
+          <button class="cookbot-close" onclick="toggleCookbot()">×</button>
+        </div>
+      </div>
+
+      <div id="cookbotMessages" class="cookbot-messages"></div>
+
+      <div class="cookbot-suggestions">
+        <button onclick="sendQuickCookbot('What can I cook with chicken and rice?')">Chicken + rice</button>
+        <button onclick="sendQuickCookbot('I need something light today')">Something light</button>
+        <button onclick="sendQuickCookbot('Give me a quick dinner idea')">Quick dinner</button>
+      </div>
+
+      <div class="cookbot-input-row">
+        <input
+          id="cookbotInput"
+          type="text"
+          placeholder="Ask CookBot something..."
+          onkeydown="handleCookbotEnter(event)"
+        />
+        <button onclick="sendCookbotMessage()">Send</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(widget);
+}
+
 function toggleCookbot() {
   const panel = document.getElementById("cookbotPanel");
   if (!panel) return;
