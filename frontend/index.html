@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Constraint-Based Cookbook</title>
+  <title>Dishcovery</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,11 +15,12 @@
 
 <body>
   <header class="auth-header premium-header">
-    <div id="welcomeText">Constraint-Based Cookbook</div>
+    <div id="welcomeText">Dishcovery</div>
     <div class="auth-header-actions">
-      <button class="auth-header-btn" onclick="scrollToRecipes()">Recipes</button>
-      <button class="auth-header-btn" onclick="scrollToCommunity()">Community</button>
+      <button class="auth-header-btn" onclick="window.location.href='index.html'">Search</button>
+      <button class="auth-header-btn" onclick="window.location.href='community.html'">Community</button>
       <button class="auth-header-btn" onclick="window.location.href='favorites.html'">Favorites</button>
+      <button class="auth-header-btn" onclick="window.location.href='cookbot.html'">CookBot</button>
       <button class="auth-header-btn logout-btn" onclick="logout()">Logout</button>
     </div>
   </header>
@@ -27,11 +28,11 @@
   <main class="homepage-premium">
     <section class="hero-search-section" id="recipesSection">
       <div class="hero-search-card premium-surface refined-hero-card">
-        <p class="community-badge">Smart Cooking Platform</p>
+        <p class="community-badge">Dishcovery</p>
 
         <h1 class="hero-title-refined">Find something good to cook</h1>
         <p class="hero-search-subtitle refined-subtitle">
-          Describe what you have or what you feel like eating. The app understands ingredients and food preferences in one search.
+          Search by ingredients, cravings, or food preferences. Dishcovery helps you find recipes that fit what you already have.
         </p>
 
         <div class="refined-search-wrap">
@@ -62,6 +63,21 @@
 
         <div id="ingredientList" class="ingredient-list refined-ingredient-list"></div>
         <div id="smartSearchSummary" class="smart-search-summary" style="display:none;"></div>
+
+        <div class="home-support-links">
+          <a class="support-link-card" href="community.html">
+            <span class="support-link-label">Community</span>
+            <strong>See what others cooked</strong>
+          </a>
+          <a class="support-link-card" href="favorites.html">
+            <span class="support-link-label">Saved Recipes</span>
+            <strong>View your favorites</strong>
+          </a>
+          <a class="support-link-card" href="cookbot.html">
+            <span class="support-link-label">CookBot</span>
+            <strong>Get extra cooking help</strong>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -82,102 +98,17 @@
         <p class="card-eyebrow">Relevant Community Matches</p>
         <h2>What people cooked with similar ingredients</h2>
         <p class="feed-section-subtitle">
-          Community posts related to what you searched for.
+          Related community posts appear here after you search.
         </p>
       </div>
 
       <div id="relevantPostsContainer" class="posts-feed compact-feed"></div>
-    </section>
 
-    <section class="community-create-section compact-compose-section" id="communitySection">
-      <div class="community-card compact-compose-card premium-surface">
-        <div class="compact-compose-header">
-          <div>
-            <p class="card-eyebrow">Create Post</p>
-            <h2>Share with the community</h2>
-          </div>
-          <button class="compact-toggle-btn" onclick="togglePostComposer()">Write Post</button>
-        </div>
-
-        <div id="postComposerBody" class="compact-compose-body">
-          <div class="form-group">
-            <label for="postTitle">Post title</label>
-            <input type="text" id="postTitle" placeholder="My creamy garlic pasta" />
-          </div>
-
-          <div class="form-group">
-            <label for="postCaption">Caption</label>
-            <textarea
-              id="postCaption"
-              class="community-textarea compact-textarea"
-              placeholder="Share ingredients, tips, and your cooking story..."
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="postImageUrl">Image URL</label>
-            <input
-              type="text"
-              id="postImageUrl"
-              placeholder="https://example.com/food.jpg"
-            />
-          </div>
-
-          <p id="postMessage" class="community-message"></p>
-
-          <div class="compact-compose-actions">
-            <button class="compact-publish-btn" onclick="createPost()">Publish Post</button>
-          </div>
-        </div>
+      <div class="section-link-row">
+        <a class="section-link-btn" href="community.html">Open full community page</a>
       </div>
-    </section>
-
-    <section class="community-feed-section-clean">
-      <div class="feed-header-block">
-        <p class="card-eyebrow">Community Feed</p>
-        <h2>See what people are cooking</h2>
-        <p class="feed-section-subtitle">
-          Browse recipe posts, discover ideas, and connect through food.
-        </p>
-      </div>
-
-      <div id="postsContainer" class="posts-feed"></div>
     </section>
   </main>
-
-  <button class="floating-bot-btn" onclick="toggleCookbot()">🤖 CookBot</button>
-
-  <div id="cookbotPanel" class="cookbot-panel hidden">
-    <div class="cookbot-header">
-      <div>
-        <h3>CookBot</h3>
-        <p>Your kitchen assistant</p>
-      </div>
-
-      <div class="cookbot-header-actions">
-        <button class="cookbot-clear" onclick="clearCookbotHistory()">Clear</button>
-        <button class="cookbot-close" onclick="toggleCookbot()">×</button>
-      </div>
-    </div>
-
-    <div id="cookbotMessages" class="cookbot-messages"></div>
-
-    <div class="cookbot-suggestions">
-      <button onclick="sendQuickCookbot('What can I cook with chicken and rice?')">Chicken + rice</button>
-      <button onclick="sendQuickCookbot('I need something light today')">Something light</button>
-      <button onclick="sendQuickCookbot('How do I use this app?')">How to use app</button>
-    </div>
-
-    <div class="cookbot-input-row">
-      <input
-        id="cookbotInput"
-        type="text"
-        placeholder="Ask CookBot something..."
-        onkeydown="handleCookbotEnter(event)"
-      />
-      <button onclick="sendCookbotMessage()">Send</button>
-    </div>
-  </div>
 
   <script src="index.js"></script>
 </body>
