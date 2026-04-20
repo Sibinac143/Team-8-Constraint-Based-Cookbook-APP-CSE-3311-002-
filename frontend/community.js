@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:5000";
+const API_BASE = "/api";
 
 document.addEventListener("DOMContentLoaded", () => {
   loadUserHeader();
@@ -135,7 +135,7 @@ async function loadPosts() {
     postsContainer.innerHTML = `
       <div class="community-card empty-feed-card">
         <h3>Unable to load posts</h3>
-        <p>Make sure your backend server is running on http://127.0.0.1:5000.</p>
+        <p>Make sure your backend server is running on /api.</p>
       </div>
     `;
   }

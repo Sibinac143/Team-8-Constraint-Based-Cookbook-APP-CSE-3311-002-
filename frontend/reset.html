@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset Password – Constraint-Based Cookbook</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+</head>
+<body class="login-page-body">
+  <main class="login-page-shell single-card-shell">
+    <section class="login-form-panel full-width-panel">
+      <div class="login-card-premium">
+        <p class="login-card-label">Password Reset</p>
+        <h2>Create a new password</h2>
+        <p class="login-card-subtitle">Enter your new password below.</p>
+
+        <div class="form-group">
+          <label>New password</label>
+          <input type="password" id="newPassword" placeholder="Enter new password" />
+        </div>
+
+        <div class="form-group">
+          <label>Confirm new password</label>
+          <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+        </div>
+
+        <p id="resetMessage" class="auth-info"></p>
+        <p id="resetError" class="auth-error"></p>
+
+        <button class="auth-submit-btn modern-auth-submit" onclick="resetPassword()">Reset Password</button>
+        <button type="button" class="secondary-auth-btn" onclick="window.location.href='login.html'">
+          Back to Login
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="reset.js"></script>
+</body>
+</html>
