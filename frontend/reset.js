@@ -7,8 +7,8 @@ function getTokenFromUrl() {
 
 async function resetPassword() {
   const token = getTokenFromUrl();
-  const newPassword = document.getElementById("newPassword").value;
-  const confirmPassword = document.getElementById("confirmPassword").value;
+  const newPassword = document.getElementById("newPassword").value.trim();
+  const confirmPassword = document.getElementById("confirmPassword").value.trim();
   const messageEl = document.getElementById("resetMessage");
   const errorEl = document.getElementById("resetError");
 
@@ -37,8 +37,8 @@ async function resetPassword() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        token,
-        new_password: newPassword
+        token: token,
+        password: newPassword
       })
     });
 
