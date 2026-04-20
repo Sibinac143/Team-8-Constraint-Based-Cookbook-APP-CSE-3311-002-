@@ -1,4 +1,5 @@
 const API_BASE = "/api";
+
 document.addEventListener("DOMContentLoaded", () => {
   loadRecipe();
 });
@@ -57,7 +58,7 @@ async function loadRecipe() {
     hero.innerHTML = `
       <div class="recipe-loading-card">
         <h2>Server unavailable</h2>
-        <p>Make sure your backend is running on http://127.0.0.1:5000.</p>
+        <p>Make sure the backend is running.</p>
       </div>
     `;
   }
@@ -109,7 +110,9 @@ function renderIngredients(ingredients, rawUserIngredients) {
   container.innerHTML = ingredients
     .map((ingredientText) => {
       const lower = String(ingredientText).toLowerCase();
-      const matched = userIngredients.some((item) => lower.includes(item));
+      const matched = userIngredients.some(
+        (item) => lower.includes(item) || item.includes(lower)
+      );
 
       return `
         <div class="ingredient-card-premium ${matched ? "matched" : "unmatched"}">
@@ -188,7 +191,9 @@ function renderMatchSummary(data, rawUserIngredients) {
   const summaryItems = [];
 
   if (userIngredients.length) {
-    summaryItems.push(`Search used ${userIngredients.length} ingredient${userIngredients.length > 1 ? "s" : ""}.`);
+    summaryItems.push(
+      `Search used ${userIngredients.length} ingredient${userIngredients.length > 1 ? "s" : ""}.`
+    );
   }
 
   if (missingCount === 0) {
