@@ -1,11 +1,5 @@
 venv/
-backend/venv/
 __pycache__/
-*.pyc
-.DS_Store
-frontend/node_modules/
-frontend/package-lock.json
-node_modules/
+*.db
+backend/gunicorn.log
 .env
-backend/.env
-

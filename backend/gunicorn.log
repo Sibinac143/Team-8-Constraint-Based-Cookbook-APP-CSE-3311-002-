@@ -1,2 +1,0 @@
-nohup: ignoring input
-nohup: failed to run command '../venv/bin/gunicorn': No such file or directory
