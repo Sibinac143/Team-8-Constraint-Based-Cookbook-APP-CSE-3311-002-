@@ -1,7 +1,9 @@
 import os
 import json
 import secrets
+import smtplib
 from datetime import datetime, timedelta
+from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
@@ -31,7 +33,6 @@ jwt = JWTManager(app)
 
 SUPPORTED_EQUIPMENT = ["oven", "microwave", "stove", "air fryer", "blender"]
 
-# Graceful OpenAI setup
 openai_client = None
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 if OPENAI_API_KEY:
@@ -104,6 +105,40 @@ class PasswordResetToken(db.Model):
     expires_at = db.Column(db.DateTime, nullable=False)
     used = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+
+def send_reset_email(to_email, reset_link):
+    smtp_host = os.environ.get("SMTP_HOST")
+    smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+    smtp_user = os.environ.get("SMTP_USER")
+    smtp_pass = os.environ.get("SMTP_PASS")
+    smtp_from = os.environ.get("SMTP_FROM", smtp_user)
+
+    if not smtp_host or not smtp_user or not smtp_pass or not smtp_from:
+        raise RuntimeError("SMTP environment variables are missing")
+
+    subject = "Dishcovery Password Reset"
+    body = f"""Hello,
+
+We received a request to reset your Dishcovery password.
+
+Use the link below to reset it:
+{reset_link}
+
+If you did not request this, you can ignore this email.
+
+Dishcovery
+"""
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = smtp_from
+    msg["To"] = to_email
+
+    with smtplib.SMTP(smtp_host, smtp_port) as server:
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.sendmail(smtp_from, [to_email], msg.as_string())
 
 
 def serialize_comment(comment):
@@ -321,13 +356,11 @@ def forgot_password():
 
     user = User.query.filter_by(email=email).first()
 
-    # Always return a generic success response for privacy
     if not user:
         return jsonify({
-            "message": "If that email exists, a reset link has been generated."
+            "message": "If that email exists, a reset link has been sent."
         }), 200
 
-    # invalidate older unused tokens
     old_tokens = PasswordResetToken.query.filter_by(user_id=user.id, used=False).all()
     for row in old_tokens:
         row.used = True
@@ -343,15 +376,17 @@ def forgot_password():
     db.session.add(reset_row)
     db.session.commit()
 
-    frontend_base = request.host_url.rstrip("/")
+    frontend_base = "http://52.14.252.143"
     reset_link = f"{frontend_base}/reset.html?token={raw_token}"
 
-    # For now we return the link directly since SMTP is not set up.
-    # This makes the feature work immediately for your demo and testing.
+    try:
+        send_reset_email(user.email, reset_link)
+    except Exception as e:
+        print("RESET EMAIL ERROR:", e)
+        return jsonify({"error": f"Could not send reset email: {str(e)}"}), 500
+
     return jsonify({
-        "message": "If that email exists, a reset link has been generated.",
-        "reset_link": reset_link,
-        "token": raw_token,
+        "message": "If that email exists, a reset link has been sent."
     }), 200
 
 
