@@ -1,11 +1,32 @@
 const API_BASE = "/api";
 let ingredients = [];
+const INGREDIENTS_KEY = "user_ingredients_v1";
+
 let cookbotInitialized = false;
 let lastSmartSearch = null;
 const COOKBOT_HISTORY_KEY = "cookbot_history_v1";
 const MAX_HISTORY_MESSAGES = 8;
 
+function saveIngredients() {
+  localStorage.setItem(INGREDIENTS_KEY, JSON.stringify(ingredients));
+}
+
+function loadIngredients() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(INGREDIENTS_KEY) || "[]");
+    if (Array.isArray(saved)) {
+      ingredients = saved;
+    }
+  } catch {
+    ingredients = [];
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  loadIngredients();
+  renderIngredients();
+  updateFriendlySummary();
+
   loadUserHeader();
   loadPosts();
   restoreCookbotHistory();
@@ -70,6 +91,7 @@ function addManualIngredient() {
 
   if (!ingredients.includes(value)) {
     ingredients.push(value);
+    saveIngredients();
   }
 
   input.value = "";
@@ -137,6 +159,7 @@ async function processSmartSearchInput(rawText) {
       }
     });
 
+    saveIngredients();
     renderIngredients();
     input.value = "";
 
@@ -211,11 +234,13 @@ function removeIngredient(ingredient) {
   ingredients = ingredients.filter((item) => item !== ingredient);
   renderIngredients();
   updateFriendlySummary();
+  saveIngredients();
 }
 
 function clearIngredients() {
   ingredients = [];
   lastSmartSearch = null;
+  saveIngredients();
   renderIngredients();
 
   const results = document.getElementById("results");
@@ -390,7 +415,7 @@ async function searchRecipes() {
     results.innerHTML = `
       <div class="community-card empty-feed-card">
         <h3>Server unavailable</h3>
-        <p>Make sure your backend is running on http://127.0.0.1:5000.</p>
+        <p>Make sure the backend is running.</p>
       </div>
     `;
   }
@@ -783,7 +808,7 @@ async function loadPosts() {
     postsContainer.innerHTML = `
       <div class="community-card empty-feed-card">
         <h3>Unable to load posts</h3>
-        <p>Make sure your backend is running on http://127.0.0.1:5000.</p>
+        <p>Make sure the backend is running.</p>
       </div>
     `;
   }
@@ -909,7 +934,7 @@ async function sendCookbotMessage() {
     const thinkingEl = document.getElementById("cookbotThinking");
     if (thinkingEl) thinkingEl.remove();
 
-    const reply = "I couldn’t reach the backend. Make sure your Flask server is running.";
+    const reply = "I couldn’t reach the backend. Make sure the server is running.";
     addCookbotMessage("bot", reply);
 
     const history = getCookbotHistory();
