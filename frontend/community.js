@@ -9,8 +9,12 @@ function loadUserHeader() {
   const username = localStorage.getItem("username");
   const welcomeText = document.getElementById("welcomeText");
 
-  if (username) {
-    welcomeText.textContent = `Community Kitchen • Hello, ${username}!`;
+  if (welcomeText) {
+    if (username) {
+      welcomeText.textContent = `Dishcovery Community • Hello, ${username}!`;
+    } else {
+      welcomeText.textContent = "Dishcovery Community";
+    }
   }
 }
 
@@ -26,6 +30,8 @@ async function createPost() {
   const caption = document.getElementById("postCaption").value.trim();
   const imageUrl = document.getElementById("postImageUrl").value.trim();
   const messageEl = document.getElementById("postMessage");
+
+  if (!messageEl) return;
 
   if (!token) {
     messageEl.textContent = "You must be logged in to create a post.";
@@ -77,6 +83,7 @@ async function createPost() {
 
 async function loadPosts() {
   const postsContainer = document.getElementById("postsContainer");
+  if (!postsContainer) return;
 
   postsContainer.innerHTML = `
     <div class="community-card empty-feed-card">
@@ -85,7 +92,11 @@ async function loadPosts() {
   `;
 
   try {
-    const response = await fetch(`${API_BASE}/posts`);
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE}/posts`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+
     const posts = await response.json();
 
     if (!Array.isArray(posts) || posts.length === 0) {
@@ -101,6 +112,7 @@ async function loadPosts() {
     postsContainer.innerHTML = posts
       .map((post) => {
         const createdText = formatDate(post.created_at);
+        const comments = Array.isArray(post.comments) ? post.comments : [];
 
         return `
           <article class="community-card post-card">
@@ -127,6 +139,11 @@ async function loadPosts() {
                   : ""
               }
             </div>
+
+            <div class="post-reactions-row">
+              <span class="community-stat-pill">❤ ${post.like_count || 0} likes</span>
+              <span class="community-stat-pill">💬 ${comments.length} comments</span>
+            </div>
           </article>
         `;
       })
@@ -135,7 +152,7 @@ async function loadPosts() {
     postsContainer.innerHTML = `
       <div class="community-card empty-feed-card">
         <h3>Unable to load posts</h3>
-        <p>Make sure your backend server is running on /api.</p>
+        <p>Please try again in a moment.</p>
       </div>
     `;
   }
