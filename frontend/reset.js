@@ -38,7 +38,7 @@ async function resetPassword() {
       },
       body: JSON.stringify({
         token: token,
-        password: newPassword
+        new_password: newPassword
       })
     });
 
