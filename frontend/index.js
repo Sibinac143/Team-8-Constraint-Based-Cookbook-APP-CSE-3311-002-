@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadPosts();
   restoreCookbotHistory();
   wireSearchInput();
+  injectCookbotWidget();
 
   const composer = document.getElementById("postComposerBody");
   if (composer) composer.style.display = "none";
@@ -42,8 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
 function loadUserHeader() {
   const username = localStorage.getItem("username");
   const welcomeText = document.getElementById("welcomeText");
-  if (username && welcomeText) {
-    welcomeText.textContent = `Constraint-Based Cookbook • Hello, ${username}`;
+  if (welcomeText) {
+    if (username) {
+      welcomeText.textContent = `Dishcovery • Hello, ${username}`;
+    } else {
+      welcomeText.textContent = "Dishcovery";
+    }
   }
 }
 
