@@ -241,6 +241,12 @@ footer {
   background: rgba(0, 0, 0, 0.12);
 }
 
+.auth-header-btn.nav-active {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.6);
+  cursor: default;
+}
+
 /* ----------------------------
    Login / Auth Card
    ---------------------------- */

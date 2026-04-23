@@ -17,6 +17,12 @@ function getQueryParams() {
   };
 }
 
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
+  window.location.href = "login.html";
+}
+
 function goBackHome() {
   window.location.href = "index.html";
 }

@@ -281,7 +281,7 @@ function injectCookbotWidget() {
 
   const widget = document.createElement("div");
   widget.innerHTML = `
-    <button class="floating-bot-btn" onclick="toggleCookbot()">🤖 CookBot</button>
+    <button class="floating-bot-btn" onclick="toggleCookbot()">🤖</button>
 
     <div id="cookbotPanel" class="cookbot-panel hidden">
       <div class="cookbot-header">
