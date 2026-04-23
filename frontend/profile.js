@@ -73,7 +73,6 @@ function renderThemePicker() {
     >
       ${t.key === current ? "✓" : ""}
     </button>
-    <span class="theme-swatch-label">${t.label}</span>
   `).join("");
 }
 
@@ -103,8 +102,8 @@ function applyThemeToPage(key) {
   const d = t.dark;
 
   el.textContent = `
-    button{background-color:${a}!important;}
-    button:hover{background-color:${d}!important;}
+    button:not(.theme-swatch){background-color:${a}!important;}
+    button:not(.theme-swatch):hover{background-color:${d}!important;}
     .auth-header,.auth-header.premium-header{background:${a}!important;}
     .post-avatar,.step-number,.floating-bot-btn,.match-summary-bullet,.missing-good-icon,.cookbot-message.user{background:${a}!important;}
     .pill-group input[type="checkbox"]:checked+.pill{background:${a}!important;border-color:${a}!important;box-shadow:0 6px 14px ${a}44!important;}
