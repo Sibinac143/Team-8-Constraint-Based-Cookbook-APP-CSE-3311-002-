@@ -567,6 +567,25 @@ def toggle_post_like(post_id):
     })
 
 
+@app.route("/user/profile", methods=["GET"])
+@jwt_required()
+def get_profile():
+    user_id = int(get_jwt_identity())
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    favorites_count = Favorite.query.filter_by(user_id=user_id).count()
+    posts_count = Post.query.filter_by(user_id=user_id).count()
+
+    return jsonify({
+        "username": user.username,
+        "email": user.email,
+        "favorites_count": favorites_count,
+        "posts_count": posts_count,
+    })
+
+
 @app.route("/user/favorites", methods=["GET"])
 @jwt_required()
 def get_favorites():
