@@ -1,6 +1,10 @@
 const API_BASE = "/api";
 let ingredients = [];
+let equipment = [];
+let dietary = [];
 const INGREDIENTS_KEY = "user_ingredients_v1";
+const EQUIPMENT_KEY = "user_equipment_v1";
+const DIETARY_KEY = "user_dietary_v1";
 
 let cookbotInitialized = false;
 let lastSmartSearch = null;
@@ -14,27 +18,85 @@ function saveIngredients() {
 function loadIngredients() {
   try {
     const saved = JSON.parse(localStorage.getItem(INGREDIENTS_KEY) || "[]");
-    if (Array.isArray(saved)) {
-      ingredients = saved;
-    }
+    if (Array.isArray(saved)) ingredients = saved;
   } catch {
     ingredients = [];
   }
 }
 
+function saveEquipment() {
+  localStorage.setItem(EQUIPMENT_KEY, JSON.stringify(equipment));
+}
+
+function loadEquipment() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(EQUIPMENT_KEY) || "[]");
+    if (Array.isArray(saved)) equipment = saved;
+  } catch {
+    equipment = [];
+  }
+}
+
+function saveDietary() {
+  localStorage.setItem(DIETARY_KEY, JSON.stringify(dietary));
+}
+
+function loadDietary() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(DIETARY_KEY) || "[]");
+    if (Array.isArray(saved)) dietary = saved;
+  } catch {
+    dietary = [];
+  }
+}
+
+function toggleEquipment(checkbox) {
+  const value = checkbox.value;
+  if (checkbox.checked) {
+    if (!equipment.includes(value)) equipment.push(value);
+  } else {
+    equipment = equipment.filter((e) => e !== value);
+  }
+  saveEquipment();
+  updateFriendlySummary();
+}
+
+function toggleDietary(checkbox) {
+  const value = checkbox.value;
+  if (checkbox.checked) {
+    if (!dietary.includes(value)) dietary.push(value);
+  } else {
+    dietary = dietary.filter((d) => d !== value);
+  }
+  saveDietary();
+  updateFriendlySummary();
+}
+
+function renderEquipmentState() {
+  document.querySelectorAll("#equipmentPills input[type='checkbox']").forEach((cb) => {
+    cb.checked = equipment.includes(cb.value);
+  });
+}
+
+function renderDietaryState() {
+  document.querySelectorAll("#dietaryPills input[type='checkbox']").forEach((cb) => {
+    cb.checked = dietary.includes(cb.value);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   loadIngredients();
+  loadEquipment();
+  loadDietary();
   renderIngredients();
+  renderEquipmentState();
+  renderDietaryState();
   updateFriendlySummary();
 
   loadUserHeader();
   loadPosts();
   restoreCookbotHistory();
-  wireSearchInput();
   injectCookbotWidget();
-
-  const composer = document.getElementById("postComposerBody");
-  if (composer) composer.style.display = "none";
 
   const relevantSection = document.getElementById("relevantPostsSection");
   if (relevantSection) relevantSection.style.display = "none";
@@ -177,32 +239,20 @@ function updateFriendlySummary() {
   const summary = document.getElementById("smartSearchSummary");
   if (!summary) return;
 
-  const preferences = lastSmartSearch?.preferences || {
-    tone: "neutral",
-    speed: "normal",
-    comfort: false,
-    soft_food: false
-  };
-
   const parts = [];
 
   if (ingredients.length > 0) {
-    if (ingredients.length === 1) {
-      parts.push(`Searching with ${ingredients[0]}`);
-    } else if (ingredients.length === 2) {
-      parts.push(`Searching with ${ingredients[0]} and ${ingredients[1]}`);
-    } else {
-      parts.push(`Searching with ${ingredients.slice(0, 3).join(", ")}`);
-    }
+    const shown = ingredients.slice(0, 3).join(", ");
+    const extra = ingredients.length > 3 ? ` +${ingredients.length - 3} more` : "";
+    parts.push(`Searching with ${shown}${extra}`);
   }
 
-  if (preferences.tone === "light") parts.push("looking for something light");
-  if (preferences.speed === "quick") parts.push("keeping it quick");
-  if (preferences.comfort) parts.push("leaning comforting");
-  if (preferences.soft_food) parts.push("soft and simple");
+  if (dietary.length > 0) {
+    parts.push(dietary.join(", "));
+  }
 
-  if (!parts.length && lastSmartSearch?.summary) {
-    parts.push(lastSmartSearch.summary);
+  if (equipment.length > 0) {
+    parts.push(`Using: ${equipment.join(", ")}`);
   }
 
   if (!parts.length) {
@@ -226,11 +276,18 @@ function removeIngredient(ingredient) {
   saveIngredients();
 }
 
-function clearIngredients() {
+function clearAll() {
   ingredients = [];
+  equipment = [];
+  dietary = [];
   lastSmartSearch = null;
+
   saveIngredients();
+  saveEquipment();
+  saveDietary();
   renderIngredients();
+  renderEquipmentState();
+  renderDietaryState();
 
   const results = document.getElementById("results");
   if (results) results.innerHTML = "";
@@ -246,9 +303,6 @@ function clearIngredients() {
     summary.style.display = "none";
     summary.textContent = "";
   }
-
-  const mainInput = document.getElementById("ingredientInput");
-  if (mainInput) mainInput.value = "";
 
   const manualInput = document.getElementById("manualIngredientInput");
   if (manualInput) manualInput.value = "";
@@ -331,7 +385,7 @@ async function searchRecipes() {
     results.innerHTML = `
       <div class="community-card empty-feed-card">
         <h3>No ingredients yet</h3>
-        <p>Describe what you have, or add ingredients manually.</p>
+        <p>Add at least one ingredient above, then click Find Recipes.</p>
       </div>
     `;
     return;
@@ -346,6 +400,8 @@ async function searchRecipes() {
   try {
     const params = new URLSearchParams({
       ingredient: ingredients.join(","),
+      equipment: equipment.join(","),
+      dietary: dietary.join(","),
       preferences: JSON.stringify(preferences)
     });
 

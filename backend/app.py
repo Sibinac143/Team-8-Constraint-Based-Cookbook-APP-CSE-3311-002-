@@ -33,6 +33,14 @@ jwt = JWTManager(app)
 
 SUPPORTED_EQUIPMENT = ["oven", "microwave", "stove", "air fryer", "blender"]
 
+DIETARY_EXCLUSIONS = {
+    "gluten-free": ["flour", "wheat", "bread", "pasta", "barley", "rye", "semolina", "breadcrumb", "noodle", "spaghetti", "macaroni", "penne", "couscous"],
+    "dairy-free": ["milk", "cream", "cheese", "butter", "yogurt", "yoghurt", "sour cream", "cream cheese", "cheddar", "mozzarella", "parmesan", "ricotta", "brie"],
+    "vegan": ["chicken", "beef", "pork", "lamb", "fish", "shrimp", "prawn", "salmon", "tuna", "bacon", "ham", "turkey", "milk", "cream", "cheese", "butter", "yogurt", "egg", "honey", "anchovy", "sardine", "crab", "lobster", "mussel"],
+    "vegetarian": ["chicken", "beef", "pork", "lamb", "fish", "shrimp", "prawn", "salmon", "tuna", "bacon", "ham", "turkey", "anchovy", "sardine", "crab", "lobster", "mussel"],
+    "nut-free": ["nut", "peanut", "almond", "cashew", "walnut", "pecan", "pistachio", "hazelnut", "pine nut", "macadamia", "chestnut"],
+}
+
 openai_client = None
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 if OPENAI_API_KEY:
@@ -172,10 +180,23 @@ def serialize_post(post, current_user_id=None):
 
 
 def recipe_matches_equipment(instructions, user_equipment):
+    if not user_equipment:
+        return True
     instructions = (instructions or "").lower()
     for equipment in SUPPORTED_EQUIPMENT:
         if equipment in instructions and equipment not in user_equipment:
             return False
+    return True
+
+
+def recipe_matches_dietary(recipe_ingredients, dietary_constraints):
+    if not dietary_constraints:
+        return True
+    ingredient_text = " ".join(recipe_ingredients).lower()
+    for constraint in dietary_constraints:
+        for keyword in DIETARY_EXCLUSIONS.get(constraint, []):
+            if keyword in ingredient_text:
+                return False
     return True
 
 
@@ -222,8 +243,9 @@ def preference_bonus(recipe_name, recipe_instructions, smart_filters):
     return score
 
 
-def search_meals_by_constraints(ingredients, user_equipment, smart_filters=None):
+def search_meals_by_constraints(ingredients, user_equipment, smart_filters=None, dietary_constraints=None):
     smart_filters = smart_filters or {}
+    dietary_constraints = dietary_constraints or []
     search_seed = ingredients[0] if ingredients else "chicken"
 
     url = f"https://www.themealdb.com/api/json/v1/1/filter.php?i={search_seed}"
@@ -256,6 +278,9 @@ def search_meals_by_constraints(ingredients, user_equipment, smart_filters=None)
                 recipe_ingredients.append(ing.lower())
 
         if not recipe_matches_equipment(instructions, user_equipment):
+            continue
+
+        if not recipe_matches_dietary(recipe_ingredients, dietary_constraints):
             continue
 
         base_score = calculate_match_score(recipe_ingredients, ingredients)
@@ -604,9 +629,13 @@ def remove_favorite(meal_id):
 @app.route("/search", methods=["GET"])
 def search_recipes():
     ingredient_param = request.args.get("ingredient", "")
+    equipment_param = request.args.get("equipment", "")
+    dietary_param = request.args.get("dietary", "")
     preferences_param = request.args.get("preferences", "")
 
     ingredients = [i.strip().lower() for i in ingredient_param.split(",") if i.strip()]
+    user_equipment = [e.strip().lower() for e in equipment_param.split(",") if e.strip()]
+    dietary_constraints = [d.strip().lower() for d in dietary_param.split(",") if d.strip()]
 
     smart_filters = {}
     if preferences_param:
@@ -615,7 +644,7 @@ def search_recipes():
         except Exception:
             smart_filters = {}
 
-    filtered_results = search_meals_by_constraints(ingredients, [], smart_filters)
+    filtered_results = search_meals_by_constraints(ingredients, user_equipment, smart_filters, dietary_constraints)
     return jsonify(filtered_results)
 
 

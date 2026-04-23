@@ -503,6 +503,43 @@ footer {
   min-width: 136px;
 }
 
+.constraints-label {
+  margin: 20px 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.find-recipes-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.find-recipes-btn {
+  padding: 14px 32px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.clear-all-btn {
+  background: transparent;
+  color: #667085;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  padding: 14px 18px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.clear-all-btn:hover {
+  background: #f9fafb;
+  color: #374151;
+}
+
 .single-shortcut-row {
   margin-top: 34px;
   display: flex;

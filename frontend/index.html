@@ -31,40 +31,46 @@
 
         <h1 class="hero-title-refined">Find something good to cook</h1>
         <p class="hero-search-subtitle refined-subtitle">
-          Search by ingredients, cravings, or food preferences. Dishcovery helps you find recipes that fit what you already have.
+          Add your ingredients, pick your equipment, and set any dietary restrictions — Dishcovery finds recipes that match what you actually have.
         </p>
 
-        <div class="simple-search-row">
-          <div class="simple-search-input-wrap">
-            <input
-              id="ingredientInput"
-              class="simple-search-input"
-              placeholder="Try: I have rice and eggs • something light today • quick meal with chicken"
-            />
-            <span class="simple-search-icon">⌕</span>
-          </div>
-
-          <button class="simple-search-btn" onclick="runSearchFromMainInput()">Search</button>
-        </div>
-
-        <div class="refined-helper-row">
-          <button class="refined-manual-btn" onclick="toggleManualIngredientMode()">+ Add ingredient manually</button>
-          <span class="refined-helper-text">Press Enter to search</span>
-        </div>
-
-        <div id="manualIngredientSection" class="manual-ingredient-section" style="display:none;">
+        <p class="constraints-label">What ingredients do you have?</p>
+        <div class="manual-ingredient-section">
           <div class="manual-ingredient-row">
             <input
               id="manualIngredientInput"
               class="manual-ingredient-input"
-              placeholder="Add one ingredient"
+              placeholder="Add one ingredient (e.g. chicken, rice, eggs)"
               onkeydown="handleManualIngredientEnter(event)"
             />
             <button class="manual-add-submit" onclick="addManualIngredient()">Add</button>
           </div>
         </div>
-
         <div id="ingredientList" class="ingredient-list refined-ingredient-list"></div>
+
+        <p class="constraints-label">What cooking equipment do you have?</p>
+        <div class="pill-group" id="equipmentPills">
+          <label><input type="checkbox" value="oven" onchange="toggleEquipment(this)" /><span class="pill">Oven</span></label>
+          <label><input type="checkbox" value="stove" onchange="toggleEquipment(this)" /><span class="pill">Stove</span></label>
+          <label><input type="checkbox" value="microwave" onchange="toggleEquipment(this)" /><span class="pill">Microwave</span></label>
+          <label><input type="checkbox" value="air fryer" onchange="toggleEquipment(this)" /><span class="pill">Air Fryer</span></label>
+          <label><input type="checkbox" value="blender" onchange="toggleEquipment(this)" /><span class="pill">Blender</span></label>
+        </div>
+
+        <p class="constraints-label">Any dietary restrictions?</p>
+        <div class="pill-group" id="dietaryPills">
+          <label><input type="checkbox" value="gluten-free" onchange="toggleDietary(this)" /><span class="pill">Gluten Free</span></label>
+          <label><input type="checkbox" value="dairy-free" onchange="toggleDietary(this)" /><span class="pill">Dairy Free</span></label>
+          <label><input type="checkbox" value="vegan" onchange="toggleDietary(this)" /><span class="pill">Vegan</span></label>
+          <label><input type="checkbox" value="vegetarian" onchange="toggleDietary(this)" /><span class="pill">Vegetarian</span></label>
+          <label><input type="checkbox" value="nut-free" onchange="toggleDietary(this)" /><span class="pill">Nut Free</span></label>
+        </div>
+
+        <div class="find-recipes-row">
+          <button class="find-recipes-btn" onclick="searchRecipes()">Find Recipes</button>
+          <button class="clear-all-btn" onclick="clearAll()">Clear All</button>
+        </div>
+
         <div id="smartSearchSummary" class="smart-search-summary" style="display:none;"></div>
 
         <div class="single-shortcut-row">
@@ -81,7 +87,7 @@
         <p class="card-eyebrow">Recipe Results</p>
         <h2>Recipes matched to your kitchen</h2>
         <p class="feed-section-subtitle">
-          Results appear here based on your ingredients and search intent.
+          Results appear here based on your ingredients and constraints.
         </p>
       </div>
 
